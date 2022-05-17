@@ -6,8 +6,10 @@ import SortView from '../view/sort-view';
 import ShowMoreButtonView from '../view/show-more-button-view';
 
 export default class MainPresenter {
-  init = (mainContainer) => {
+  init = (mainContainer, cardsModel) => {
     this.mainContainer = mainContainer;
+    this.cardsModel = cardsModel;
+    this.mainCards = [...this.cardsModel.getCards()];
 
     render(new FilterView(), this.mainContainer);
 
@@ -18,8 +20,8 @@ export default class MainPresenter {
     const filmsListElement = document.querySelector('.films-list');
     const filmsListContainerElement = filmsListElement.querySelector('.films-list__container');
 
-    for (let i = 0; i < 5; i++) {
-      render(new CardView(), filmsListContainerElement);
+    for (let i = 0; i < this.mainCards.length; i++) {
+      render(new CardView(this.mainCards[i]), filmsListContainerElement);
     }
 
     render(new ShowMoreButtonView(), filmsListElement);
