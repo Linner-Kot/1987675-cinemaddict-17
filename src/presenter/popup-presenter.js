@@ -2,11 +2,15 @@ import { render } from '../render';
 import PopupView from '../view/popup-view';
 
 export default class PopupPresenter {
-  init = (popupContainer, cardsModel) => {
-    this.popupContainer = popupContainer;
-    this.cardsModel = cardsModel;
-    this.popupCards = [...this.cardsModel.getCards()];
+  #popupContainer;
+  #cardsModel;
+  #popupCards;
 
-    render(new PopupView(this.popupCards[0]), this.popupContainer);
+  init = (popupContainer, cardsModel) => {
+    this.#popupContainer = popupContainer;
+    this.#cardsModel = cardsModel;
+    this.#popupCards = [...this.#cardsModel.cards];
+
+    render(new PopupView(this.#popupCards[0]), this.#popupContainer);
   };
 }
