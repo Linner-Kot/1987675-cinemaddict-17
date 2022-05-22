@@ -1,22 +1,26 @@
-/* eslint-disable no-console */
 import { render } from '../render';
 import CardView from '../view/card-view';
 import FilmsContainerView from '../view/films-container-view';
 import FilmsListView from '../view/films-list-view';
 import FilmsView from '../view/films-view';
 import NavigationView from '../view/navigation-view';
+import NoFilmsView from '../view/no-films-view';
 import PopupView from '../view/popup-view';
 import ShowMoreButtonView from '../view/show-more-button-view';
 import SortView from '../view/sort-view';
+
+const CARD_COUNT_PER_STEP = 5;
 
 export default class MainPresenter {
   #mainContainer;
   #cardsModel;
   #mainCards;
+  #renderedCardCount = CARD_COUNT_PER_STEP;
 
   #filmsComponent = new FilmsView();
   #filmsListComponent = new FilmsListView();
   #filmsContainerComponent = new FilmsContainerView();
+  #showMoreButtonComponent = new ShowMoreButtonView();
 
   init = (mainContainer, cardsModel) => {
     this.#mainContainer = mainContainer;
@@ -25,27 +29,42 @@ export default class MainPresenter {
 
     render(new NavigationView(), this.#mainContainer);
 
-    render(new SortView(), this.#mainContainer);
+    if (this.#mainCards.length === 0) {
+      render(this.#filmsComponent, this.#mainContainer);
+      render(this.#filmsListComponent, this.#filmsComponent.element);
 
-    render(this.#filmsComponent, this.#mainContainer);
+      render(new NoFilmsView(), this.#filmsListComponent.element);
+    } else {
+      render(new SortView(), this.#mainContainer);
 
-    render(this.#filmsListComponent, this.#filmsComponent.element);
+      render(this.#filmsComponent, this.#mainContainer);
+      render(this.#filmsListComponent, this.#filmsComponent.element);
+      render(this.#filmsContainerComponent, this.#filmsListComponent.element);
 
-    render(this.#filmsContainerComponent, this.#filmsListComponent.element);
+      for (let i = 0; i < Math.min(this.#mainCards.length, CARD_COUNT_PER_STEP); i++) {
+        this.#renderCard(this.#mainCards[i]);
+      }
 
-    //<--Избавимся от кода отрисовки-->
-    // for (let i = 0; i < this.#mainCards.length; i++) {
-    //   render(new CardView(this.#mainCards[i]), this.#filmsContainerComponent.element);
-    // }
+      if (this.#mainCards.length > CARD_COUNT_PER_STEP) {
+        render(this.#showMoreButtonComponent, this.#filmsComponent.element);
 
-    //<--Избавимся от кода отрисовки-->
-    // render(new PopupView(this.#mainCards[0]), this.#mainContainer);
-
-    for (let i = 0; i < this.#mainCards.length; i++) {
-      this.#renderCard(this.#mainCards[i]);
+        this.#showMoreButtonComponent.element.addEventListener('click', this.#onShowMoreButtonClick);
+      }
     }
+  };
 
-    render(new ShowMoreButtonView(), this.#filmsListComponent.element);
+  #onShowMoreButtonClick = (evt) => {
+    evt.preventDefault();
+    this.#mainCards
+      .slice(this.#renderedCardCount, this.#renderedCardCount + CARD_COUNT_PER_STEP)
+      .forEach((card) => this.#renderCard(card));
+
+    this.#renderedCardCount += CARD_COUNT_PER_STEP;
+
+    if (this.#renderedCardCount >= this.#mainCards.length) {
+      this.#showMoreButtonComponent.element.remove();
+      this.#showMoreButtonComponent.removeElement();
+    }
   };
 
   #renderCard = (card) => {
@@ -59,6 +78,7 @@ export default class MainPresenter {
 
     const onPopupEscape = (evt) => {
       if (evt.key === 'Escape') {
+        evt.preventDefault();
         this.#mainContainer.removeChild(popupComponent.element);
         document.querySelector('body').classList.remove('hide-overflow');
       }
