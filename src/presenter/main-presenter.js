@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { render } from '../render';
 import CardView from '../view/card-view';
 import FilmsContainerView from '../view/films-container-view';
@@ -32,27 +33,53 @@ export default class MainPresenter {
 
     render(this.#filmsContainerComponent, this.#filmsListComponent.element);
 
+    //<--Избавимся от кода отрисовки-->
+    // for (let i = 0; i < this.#mainCards.length; i++) {
+    //   render(new CardView(this.#mainCards[i]), this.#filmsContainerComponent.element);
+    // }
+
+    //<--Избавимся от кода отрисовки-->
+    // render(new PopupView(this.#mainCards[0]), this.#mainContainer);
+
     for (let i = 0; i < this.#mainCards.length; i++) {
-      render(new CardView(this.#mainCards[i]), this.#filmsContainerComponent.element);
+      this.#renderCard(this.#mainCards[i]);
     }
 
-    render(new PopupView(this.#mainCards[0]), this.#mainContainer);
-
     render(new ShowMoreButtonView(), this.#filmsListComponent.element);
-
-    // for (let i = 0; i < this.#mainCards.length; i++) {
-    //   this.#renderCard(this.#mainCards[i]);
-    // }
   };
 
-  // #renderCard = (card) => {
-  //   const cardComponent = new CardView(card);
-  //   const popupComponent = new PopupView(card);
+  #renderCard = (card) => {
+    const cardComponent = new CardView(card);
+    const popupComponent = new PopupView(card);
 
-  //   const replaceCardToPopup = () => {
+    const onPopupCloseBtnClick = () => {
+      this.#mainContainer.removeChild(popupComponent.element);
+      document.querySelector('body').classList.remove('hide-overflow');
+    };
 
-  //   };
+    const onPopupEscape = (evt) => {
+      if (evt.key === 'Escape') {
+        this.#mainContainer.removeChild(popupComponent.element);
+        document.querySelector('body').classList.remove('hide-overflow');
+      }
+    };
 
-  //   render(cardComponent, filmsListContainerElement);
-  // };
+    const onCardClick = () => {
+      const popup = this.#mainContainer.querySelector('.film-details');
+      if (popup) {
+        this.#mainContainer.removeChild(popup);
+      }
+
+      render(popupComponent, this.#mainContainer);
+      document.querySelector('body').classList.add('hide-overflow');
+
+      document.addEventListener('keydown', onPopupEscape, {once: true});
+    };
+
+    cardComponent.element.addEventListener('click', onCardClick);
+
+    popupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', onPopupCloseBtnClick);
+
+    render(cardComponent, this.#filmsContainerComponent.element);
+  };
 }
