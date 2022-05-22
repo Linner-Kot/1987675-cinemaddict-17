@@ -7,8 +7,8 @@ const siteHeaderElement = document.querySelector('.header');
 
 const cardsModel = new CardsModel();
 
-const headerPresenter = new HeaderPresenter();
-headerPresenter.init(siteHeaderElement);
+const headerPresenter = new HeaderPresenter(siteHeaderElement);
+headerPresenter.init();
 
-const mainPresenter = new MainPresenter();
-mainPresenter.init(siteMainElement, cardsModel);
+const mainPresenter = new MainPresenter(siteMainElement, cardsModel);
+mainPresenter.init();

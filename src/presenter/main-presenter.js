@@ -22,35 +22,15 @@ export default class MainPresenter {
   #filmsContainerComponent = new FilmsContainerView();
   #showMoreButtonComponent = new ShowMoreButtonView();
 
-  init = (mainContainer, cardsModel) => {
+  constructor(mainContainer, cardsModel) {
     this.#mainContainer = mainContainer;
     this.#cardsModel = cardsModel;
+  }
+
+  init = () => {
     this.#mainCards = [...this.#cardsModel.cards];
 
-    render(new NavigationView(), this.#mainContainer);
-
-    if (this.#mainCards.length === 0) {
-      render(this.#filmsComponent, this.#mainContainer);
-      render(this.#filmsListComponent, this.#filmsComponent.element);
-
-      render(new NoFilmsView(), this.#filmsListComponent.element);
-    } else {
-      render(new SortView(), this.#mainContainer);
-
-      render(this.#filmsComponent, this.#mainContainer);
-      render(this.#filmsListComponent, this.#filmsComponent.element);
-      render(this.#filmsContainerComponent, this.#filmsListComponent.element);
-
-      for (let i = 0; i < Math.min(this.#mainCards.length, CARD_COUNT_PER_STEP); i++) {
-        this.#renderCard(this.#mainCards[i]);
-      }
-
-      if (this.#mainCards.length > CARD_COUNT_PER_STEP) {
-        render(this.#showMoreButtonComponent, this.#filmsComponent.element);
-
-        this.#showMoreButtonComponent.element.addEventListener('click', this.#onShowMoreButtonClick);
-      }
-    }
+    this.#renderMain();
   };
 
   #onShowMoreButtonClick = (evt) => {
@@ -101,5 +81,33 @@ export default class MainPresenter {
     popupComponent.element.querySelector('.film-details__close-btn').addEventListener('click', onPopupCloseBtnClick);
 
     render(cardComponent, this.#filmsContainerComponent.element);
+  };
+
+  #renderMain = () => {
+    render(new NavigationView(), this.#mainContainer);
+
+    if (this.#mainCards.length === 0) {
+      render(this.#filmsComponent, this.#mainContainer);
+      render(this.#filmsListComponent, this.#filmsComponent.element);
+
+      render(new NoFilmsView(), this.#filmsListComponent.element);
+      return;
+    }
+
+    render(new SortView(), this.#mainContainer);
+
+    render(this.#filmsComponent, this.#mainContainer);
+    render(this.#filmsListComponent, this.#filmsComponent.element);
+    render(this.#filmsContainerComponent, this.#filmsListComponent.element);
+
+    for (let i = 0; i < Math.min(this.#mainCards.length, CARD_COUNT_PER_STEP); i++) {
+      this.#renderCard(this.#mainCards[i]);
+    }
+
+    if (this.#mainCards.length > CARD_COUNT_PER_STEP) {
+      render(this.#showMoreButtonComponent, this.#filmsComponent.element);
+
+      this.#showMoreButtonComponent.element.addEventListener('click', this.#onShowMoreButtonClick);
+    }
   };
 }
