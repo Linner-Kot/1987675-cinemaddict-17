@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const NO_MOVIES_MESSAGES = {
   AllMovies: 'There are no movies in our database',
@@ -13,22 +13,8 @@ const createNoFilmsTemplate = () => (
   </h2>`
 );
 
-export default class NoFilmsView {
-  #element;
-
+export default class NoFilmsView extends AbstractView {
   get template() {
     return createNoFilmsTemplate();
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

@@ -1,22 +1,23 @@
-import { createElement } from '../render.js';
-import { humanizeFilmCardReleaseDate, humanizeFilmRuntime } from '../util.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizeFilmCardReleaseDate, humanizeFilmRuntime } from '../utils/task.js';
 
 const createCardTemplate = (film) => {
-  const {filmInfo} = film;
+  const {title, totalRating, release, runtime, genre, poster, description} = film.filmInfo;
+  const {comments} = film;
 
   return (
     `<article class="film-card">
       <a class="film-card__link">
-        <h3 class="film-card__title">${filmInfo.title}</h3>
-        <p class="film-card__rating">${filmInfo.totalRating}</p>
+        <h3 class="film-card__title">${title}</h3>
+        <p class="film-card__rating">${totalRating}</p>
         <p class="film-card__info">
-          <span class="film-card__year">${humanizeFilmCardReleaseDate(filmInfo.release.date)}</span>
-          <span class="film-card__duration">${humanizeFilmRuntime(filmInfo.runtime)}</span>
-          <span class="film-card__genre">${filmInfo.genre}</span>
+          <span class="film-card__year">${humanizeFilmCardReleaseDate(release.date)}</span>
+          <span class="film-card__duration">${humanizeFilmRuntime(runtime)}</span>
+          <span class="film-card__genre">${genre}</span>
         </p>
-        <img src="${filmInfo.poster}" alt="" class="film-card__poster">
-        <p class="film-card__description">${filmInfo.description}</p>
-        <span class="film-card__comments">5 comments</span>
+        <img src="${poster}" alt="" class="film-card__poster">
+        <p class="film-card__description">${description}</p>
+        <span class="film-card__comments">${comments.length} comments</span>
       </a>
       <div class="film-card__controls">
         <button class="film-card__controls-item film-card__controls-item--add-to-watchlist" type="button">Add to watchlist</button>
@@ -27,25 +28,23 @@ const createCardTemplate = (film) => {
   );
 };
 
-export default class CardView {
+export default class CardView extends AbstractView {
   constructor(film) {
+    super();
     this.film = film;
   }
-
-  #element;
 
   get template() {
     return createCardTemplate(this.film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  setCardClickHandler = (callback) => {
+    this._callback.cardClick = callback;
+    this.element.addEventListener('click', this.#cardClickHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #cardClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.cardClick();
+  };
 }
