@@ -1,4 +1,4 @@
-import { getRandomInteger, getRandomNumber } from '../util';
+import { getRandomInteger, getRandomNumber } from '../utils/common';
 import { generateComment } from './comments';
 
 const generateTitle = () => {

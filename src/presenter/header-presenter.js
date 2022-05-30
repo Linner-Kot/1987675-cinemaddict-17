@@ -1,4 +1,4 @@
-import { render } from '../render';
+import {render} from '../framework/render.js';
 import UserRankView from '../view/user-rank-view';
 
 export default class HeaderPresenter {

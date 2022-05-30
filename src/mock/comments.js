@@ -1,4 +1,4 @@
-import { getRandomInteger } from '../util';
+import { getRandomInteger } from '../utils/common';
 
 const generateId = () => getRandomInteger(1, 10);
 

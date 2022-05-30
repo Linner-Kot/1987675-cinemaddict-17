@@ -1,5 +1,5 @@
-import { createElement } from '../render.js';
-import { humanizeFilmPopupReleaseDate, humanizeFilmRuntime, humanizeCommentDate } from '../util.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizeFilmPopupReleaseDate, humanizeFilmRuntime, humanizeCommentDate } from '../utils/task.js';
 
 const createPopupTemplate = (film) => {
   const {poster, ageRating, title, alternativeTitle, totalRating, director, writers, actors, release, runtime, genre, description} = film.filmInfo;
@@ -142,25 +142,23 @@ const createPopupTemplate = (film) => {
   );
 };
 
-export default class PopupView {
+export default class PopupView extends AbstractView {
   constructor(film) {
+    super();
     this.film = film;
   }
-
-  #element;
 
   get template() {
     return createPopupTemplate(this.film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  setPopupCloseButtonClickHandler = (callback) => {
+    this._callback.popupCloseButtonClick = callback;
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#popupCloseButtonClickHandler);
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
+  #popupCloseButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.popupCloseButtonClick();
+  };
 }
