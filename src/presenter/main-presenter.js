@@ -12,11 +12,12 @@ import SortView from '../view/sort-view';
 const CARD_COUNT_PER_STEP = 5;
 
 export default class MainPresenter {
-  #bodyContainer = document.querySelector('body');
+  #bodyContainer = document.body;
   #mainContainer;
   #cardsModel;
   #mainCards;
   #renderedCardCount = CARD_COUNT_PER_STEP;
+  #openedPopup = null;
 
   #filmsComponent = new FilmsView();
   #filmsListComponent = new FilmsListView();
@@ -34,8 +35,7 @@ export default class MainPresenter {
     this.#renderMain();
   };
 
-  #onShowMoreButtonClick = (evt) => {
-    evt.preventDefault();
+  #onShowMoreButtonClick = () => {
     this.#mainCards
       .slice(this.#renderedCardCount, this.#renderedCardCount + CARD_COUNT_PER_STEP)
       .forEach((card) => this.#renderCard(card));
@@ -48,62 +48,52 @@ export default class MainPresenter {
     }
   };
 
+  #closePopup = () => {
+    this.#openedPopup.element.remove();
+    this.#openedPopup.removeElement();
+
+    this.#bodyContainer.classList.remove('hide-overflow');
+    document.removeEventListener('keydown', this.#onPopupEscape);
+  };
+
+  #onPopupEscape = (evt) => {
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#closePopup();
+    }
+  };
+
+  #renderPopup = (card) => {
+    if (this.#openedPopup) {
+      this.#closePopup();
+    }
+
+    this.#openedPopup = new PopupView(card);
+    render(this.#openedPopup, this.#bodyContainer);
+    this.#openedPopup.setPopupCloseButtonClickHandler(this.#closePopup);
+
+    this.#bodyContainer.classList.add('hide-overflow');
+    document.addEventListener('keydown', this.#onPopupEscape);
+  };
+
   #renderCard = (card) => {
     const cardComponent = new CardView(card);
-    const popupComponent = new PopupView(card);
-
-    const onPopupCloseButtonClick = () => {
-      this.#bodyContainer.removeChild(popupComponent.element); //old
-      // popupComponent.element.remove(); //new; не срабатывает второй раз кнопка "закрыть" на одной и той же карточке
-      // popupComponent.removeElement(); //new
-      document.querySelector('body').classList.remove('hide-overflow');
-    };
-
-    const onPopupEscape = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        this.#bodyContainer.removeChild(popupComponent.element); //old
-        // popupComponent.element.remove(); //new не срабатывает второй раз кнопка "закрыть" на одной и той же карточке
-        // popupComponent.removeElement(); //new
-        document.querySelector('body').classList.remove('hide-overflow');
-      }
-    };
-
-    const onCardClick = () => {
-      const popup = this.#bodyContainer.querySelector('.film-details');
-      if (popup) {
-        this.#bodyContainer.removeChild(popup);
-        // popupComponent.element.remove(); //new вообще не работает...
-        // popupComponent.removeElement(); //new
-      }
-
-      render(popupComponent, this.#bodyContainer);
-      // render(new PopupView(card), this.#bodyContainer);//!! разобраться позже...
-      document.querySelector('body').classList.add('hide-overflow');
-
-      document.addEventListener('keydown', onPopupEscape, {once: true});
-    };
-
-    cardComponent.setCardClickHandler(onCardClick);
-
-    popupComponent.setPopupCloseButtonClickHandler(onPopupCloseButtonClick);
+    cardComponent.setCardClickHandler(() => this.#renderPopup(card));
 
     render(cardComponent, this.#filmsContainerComponent.element);
   };
 
   #renderMain = () => {
-    render(new NavigationView(), this.#mainContainer);
+    render(new NavigationView(this.#mainCards), this.#mainContainer);
 
     if (this.#mainCards.length === 0) {
       render(this.#filmsComponent, this.#mainContainer);
       render(this.#filmsListComponent, this.#filmsComponent.element);
-
       render(new NoFilmsView(), this.#filmsListComponent.element);
       return;
     }
 
     render(new SortView(), this.#mainContainer);
-
     render(this.#filmsComponent, this.#mainContainer);
     render(this.#filmsListComponent, this.#filmsComponent.element);
     render(this.#filmsContainerComponent, this.#filmsListComponent.element);
