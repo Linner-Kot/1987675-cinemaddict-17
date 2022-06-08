@@ -78,7 +78,6 @@ export default class MainPresenter {
 
   #renderCard = (card) => {
     const cardComponent = new CardView(card);
-
     cardComponent.setCardClickHandler(() => this.#renderPopup(card));
 
     render(cardComponent, this.#filmsContainerComponent.element);

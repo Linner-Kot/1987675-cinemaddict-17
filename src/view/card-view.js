@@ -41,7 +41,7 @@ export default class CardView extends AbstractView {
 
   setCardClickHandler = (callback) => {
     this._callback.cardClick = callback;
-    this.element.addEventListener('click', this.#cardClickHandler);
+    this.element.querySelector('img').addEventListener('click', this.#cardClickHandler);
   };
 
   #cardClickHandler = (evt) => {
