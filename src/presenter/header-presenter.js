@@ -1,5 +1,5 @@
-import {render} from '../framework/render.js';
-import UserRankView from '../view/user-rank-view';
+import {render, RenderPosition} from '../framework/render.js';
+import HeaderView from '../view/header-view';
 
 export default class HeaderPresenter {
   #headerContainer;
@@ -9,6 +9,6 @@ export default class HeaderPresenter {
   }
 
   init = () => {
-    render(new UserRankView(), this.#headerContainer);
+    render(new HeaderView(), this.#headerContainer, RenderPosition.AFTERBEGIN);
   };
 }
