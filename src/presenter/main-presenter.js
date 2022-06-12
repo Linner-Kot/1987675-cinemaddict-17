@@ -1,31 +1,33 @@
 import { render } from '../framework/render.js';
-import CardView from '../view/card-view';
-import FilmsContainerView from '../view/films-container-view';
-import FilmsListView from '../view/films-list-view';
-import FilmsView from '../view/films-view';
-import NavigationView from '../view/navigation-view';
-import NoFilmsView from '../view/no-films-view';
-import PopupView from '../view/popup-view';
-import ShowMoreButtonView from '../view/show-more-button-view';
-import SortView from '../view/sort-view';
+import MainView from '../view/main-view.js';
+import FilmsContainerView from '../view/films-container-view.js';
+import FilmsListView from '../view/films-list-view.js';
+import FilmsView from '../view/films-view.js';
+import NavigationView from '../view/navigation-view.js';
+import NoFilmsView from '../view/no-films-view.js';
+import ShowMoreButtonView from '../view/show-more-button-view.js';
+import SortView from '../view/sort-view.js';
+import FilmPresenter from './film-presenter.js';
 
 const CARD_COUNT_PER_STEP = 5;
 
 export default class MainPresenter {
-  #bodyContainer = document.body;
-  #mainContainer;
+  #bodyContainer;
   #cardsModel;
   #mainCards;
   #renderedCardCount = CARD_COUNT_PER_STEP;
   #openedPopup = null;
 
+  #sortComponent = new SortView();
+  #noFilmsComponent = new NoFilmsView();
+  #mainComponent = new MainView();
   #filmsComponent = new FilmsView();
   #filmsListComponent = new FilmsListView();
   #filmsContainerComponent = new FilmsContainerView();
   #showMoreButtonComponent = new ShowMoreButtonView();
 
   constructor(mainContainer, cardsModel) {
-    this.#mainContainer = mainContainer;
+    this.#bodyContainer = mainContainer;
     this.#cardsModel = cardsModel;
   }
 
@@ -34,6 +36,41 @@ export default class MainPresenter {
 
     this.#renderMain();
   };
+
+  #renderMain = () => {
+    this.#renderNavigation();
+
+    if (this.#mainCards.length === 0) {
+      this.#renderMainComponent();
+      this.#renderFilmsComponent();
+      this.#renderFilmsListComponent();
+      render(this.#noFilmsComponent, this.#filmsListComponent.element);
+      return;
+    }
+
+    this.#renderSort();
+    this.#renderMainComponent();
+    this.#renderFilmsComponent();
+    this.#renderFilmsListComponent();
+    this.#renderFilmsContainerComponent();
+
+    for (let i = 0; i < Math.min(this.#mainCards.length, CARD_COUNT_PER_STEP); i++) {
+      this.#renderCard(this.#mainCards[i]);
+    }
+
+    if (this.#mainCards.length > CARD_COUNT_PER_STEP) {
+      render(this.#showMoreButtonComponent, this.#filmsComponent.element);
+
+      this.#showMoreButtonComponent.setClickHandler(this.#onShowMoreButtonClick);
+    }
+  };
+
+  #renderMainComponent = () => render(this.#mainComponent, this.#bodyContainer);
+  #renderFilmsComponent = () => render(this.#filmsComponent, this.#mainComponent.element);
+  #renderFilmsListComponent = () => render(this.#filmsListComponent, this.#filmsComponent.element);
+  #renderFilmsContainerComponent = () => render(this.#filmsContainerComponent, this.#filmsListComponent.element);
+  #renderNavigation = () => render(new NavigationView(this.#mainCards), this.#mainComponent.element);
+  #renderSort = () => render(this.#sortComponent, this.#mainComponent.element);
 
   #onShowMoreButtonClick = () => {
     this.#mainCards
@@ -48,64 +85,15 @@ export default class MainPresenter {
     }
   };
 
-  #closePopup = () => {
-    this.#openedPopup.element.remove();
-    this.#openedPopup.removeElement();
-
-    this.#bodyContainer.classList.remove('hide-overflow');
-    document.removeEventListener('keydown', this.#onPopupEscape);
-  };
-
-  #onPopupEscape = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#closePopup();
-    }
-  };
-
-  #renderPopup = (card) => {
-    if (this.#openedPopup) {
-      this.#closePopup();
-    }
-
-    this.#openedPopup = new PopupView(card);
-    render(this.#openedPopup, this.#bodyContainer);
-    this.#openedPopup.setPopupCloseButtonClickHandler(this.#closePopup);
-
-    this.#bodyContainer.classList.add('hide-overflow');
-    document.addEventListener('keydown', this.#onPopupEscape);
-  };
-
   #renderCard = (card) => {
-    const cardComponent = new CardView(card);
-    cardComponent.setCardClickHandler(() => this.#renderPopup(card));
-
-    render(cardComponent, this.#filmsContainerComponent.element);
+    const filmPresenter = new FilmPresenter(this.#filmsContainerComponent.element, this.#bodyContainer, this.#setOpenedPopup);
+    filmPresenter.init(card);
   };
 
-  #renderMain = () => {
-    render(new NavigationView(this.#mainCards), this.#mainContainer);
-
-    if (this.#mainCards.length === 0) {
-      render(this.#filmsComponent, this.#mainContainer);
-      render(this.#filmsListComponent, this.#filmsComponent.element);
-      render(new NoFilmsView(), this.#filmsListComponent.element);
-      return;
+  #setOpenedPopup = (currentFilmPresenter) => {
+    if (this.#openedPopup) {
+      this.#openedPopup.closePopup();
     }
-
-    render(new SortView(), this.#mainContainer);
-    render(this.#filmsComponent, this.#mainContainer);
-    render(this.#filmsListComponent, this.#filmsComponent.element);
-    render(this.#filmsContainerComponent, this.#filmsListComponent.element);
-
-    for (let i = 0; i < Math.min(this.#mainCards.length, CARD_COUNT_PER_STEP); i++) {
-      this.#renderCard(this.#mainCards[i]);
-    }
-
-    if (this.#mainCards.length > CARD_COUNT_PER_STEP) {
-      render(this.#showMoreButtonComponent, this.#filmsComponent.element);
-
-      this.#showMoreButtonComponent.setClickHandler(this.#onShowMoreButtonClick);
-    }
+    this.#openedPopup = currentFilmPresenter;
   };
 }
