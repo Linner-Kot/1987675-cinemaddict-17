@@ -3,11 +3,12 @@ import MainView from '../view/main-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmsListView from '../view/films-list-view.js';
 import FilmsView from '../view/films-view.js';
-import NavigationView from '../view/navigation-view.js';
+// import NavigationView from '../view/navigation-view.js';
 import NoFilmsView from '../view/no-films-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import SortView from '../view/sort-view.js';
 import FilmPresenter from './film-presenter.js';
+import NavigationPresenter from './navigation-presenter.js';
 
 const CARD_COUNT_PER_STEP = 5;
 
@@ -69,7 +70,12 @@ export default class MainPresenter {
   #renderFilmsComponent = () => render(this.#filmsComponent, this.#mainComponent.element);
   #renderFilmsListComponent = () => render(this.#filmsListComponent, this.#filmsComponent.element);
   #renderFilmsContainerComponent = () => render(this.#filmsContainerComponent, this.#filmsListComponent.element);
-  #renderNavigation = () => render(new NavigationView(this.#mainCards), this.#mainComponent.element);
+
+  #renderNavigation = () => {
+    const navigationPresenter = new NavigationPresenter(this.#mainComponent.element);
+    navigationPresenter.init(this.#mainCards);
+  };
+
   #renderSort = () => render(this.#sortComponent, this.#mainComponent.element);
 
   #onShowMoreButtonClick = () => {

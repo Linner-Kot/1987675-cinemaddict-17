@@ -1,12 +1,20 @@
 import { render } from '../framework/render.js';
+import NavigationView from '../view/navigation-view.js';
 
 export default class NavigationPresenter {
+  #mainComponent;
+  #mainCards;
+  #navigationComponent;
 
-  constructor() {
-
+  constructor(mainComponent) {
+    this.#mainComponent = mainComponent;
   }
 
-  init = () => {
+  init = (mainCards) => {
+    this.#mainCards = mainCards;
 
+    this.#navigationComponent = new NavigationView(this.#mainCards);
+
+    render(this.#navigationComponent, this.#mainComponent);
   };
 }
