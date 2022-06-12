@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { getRandomInteger, getRandomNumber } from '../utils/common';
 import { generateComment } from './comments';
 
@@ -203,7 +204,7 @@ for (let i = 0; i < randomCommentsCount; i++) {
 
 
 export const generateFilm = () => {
-  const id = generateId();
+  const id = nanoid();
 
   return {
     id,

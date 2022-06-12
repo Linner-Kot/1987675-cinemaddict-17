@@ -1,4 +1,4 @@
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import MainView from '../view/main-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmsListView from '../view/films-list-view.js';
@@ -9,14 +9,16 @@ import ShowMoreButtonView from '../view/show-more-button-view.js';
 import SortView from '../view/sort-view.js';
 import FilmPresenter from './film-presenter.js';
 import NavigationPresenter from './navigation-presenter.js';
+import { updateItem } from '../utils/common.js';
 
 const CARD_COUNT_PER_STEP = 5;
 
 export default class MainPresenter {
-  #bodyContainer;
-  #cardsModel;
-  #mainCards;
+  #bodyContainer = null;
+  #cardsModel = null;
+  #mainCards = null;
   #renderedCardCount = CARD_COUNT_PER_STEP;
+  #filmPresenter = new Map();
   #openedPopup = null;
 
   #sortComponent = new SortView();
@@ -92,8 +94,9 @@ export default class MainPresenter {
   };
 
   #renderCard = (card) => {
-    const filmPresenter = new FilmPresenter(this.#filmsContainerComponent.element, this.#bodyContainer, this.#setOpenedPopup);
+    const filmPresenter = new FilmPresenter(this.#filmsContainerComponent.element, this.#bodyContainer, this.#setOpenedPopup, this.#handleFilmChange);
     filmPresenter.init(card);
+    this.#filmPresenter.set(card.id, filmPresenter);
   };
 
   #setOpenedPopup = (currentFilmPresenter) => {
@@ -101,5 +104,17 @@ export default class MainPresenter {
       this.#openedPopup.closePopup();
     }
     this.#openedPopup = currentFilmPresenter;
+  };
+
+  clearCardsList = () => {
+    this.#filmPresenter.forEach((presenter) => presenter.destroy());
+    this.#filmPresenter.clear();
+    this.#renderedCardCount = CARD_COUNT_PER_STEP;
+    remove(this.#showMoreButtonComponent);
+  };
+
+  #handleFilmChange = (updatedFilm) => {
+    this.#mainCards = updateItem(this.#mainCards, updatedFilm);
+    this.#filmPresenter.get(updatedFilm.id).init(updatedFilm);
   };
 }
