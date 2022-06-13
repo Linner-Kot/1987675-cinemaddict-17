@@ -3,7 +3,6 @@ import MainView from '../view/main-view.js';
 import FilmsContainerView from '../view/films-container-view.js';
 import FilmsListView from '../view/films-list-view.js';
 import FilmsView from '../view/films-view.js';
-// import NavigationView from '../view/navigation-view.js';
 import NoFilmsView from '../view/no-films-view.js';
 import ShowMoreButtonView from '../view/show-more-button-view.js';
 import SortView from '../view/sort-view.js';

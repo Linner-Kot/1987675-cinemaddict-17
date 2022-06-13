@@ -194,8 +194,6 @@ const generateDescription = () => {
   return description;
 };
 
-const generateId = () => getRandomInteger(1, 10);
-
 const comments = [];
 const randomCommentsCount = getRandomInteger(1, 100);
 for (let i = 0; i < randomCommentsCount; i++) {
@@ -204,7 +202,7 @@ for (let i = 0; i < randomCommentsCount; i++) {
 
 
 export const generateFilm = () => {
-  const id = nanoid();
+  const id = nanoid(1);
 
   return {
     id,

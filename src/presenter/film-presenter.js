@@ -9,13 +9,14 @@ export default class FilmPresenter {
   #cardComponent = null;
   #openedPopup = null;
   #setOpenedPopup = null;
-  #changeData = null;
+  #handleFilmChange = null;
+  #popupComponent = null;
 
-  constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, changeData) {
+  constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, handleFilmChange) {
     this.#filmsContainerComponent = filmsContainerComponent;
     this.#bodyContainer = bodyContainer;
     this.#setOpenedPopup = setOpenedPopup;
-    this.#changeData = changeData;
+    this.#handleFilmChange = handleFilmChange;
   }
 
   init = (card) => {
@@ -25,6 +26,9 @@ export default class FilmPresenter {
     const prevPopupComponent = this.#openedPopup;
 
     this.#cardComponent = new CardView(this.#card);
+    if (prevPopupComponent !== null && this.#bodyContainer.contains(prevPopupComponent.element)) {
+      this.#renderPopup(this.#card);
+    }
 
     this.#cardComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
     this.#cardComponent.setWatchedClickHandler(this.#handleWatchedClick);
@@ -65,15 +69,15 @@ export default class FilmPresenter {
   };
 
   #handleWatchlistClick = () => {
-    this.#changeData({...this.#card, userDetails: {...this.#card.userDetails, watchlist: !this.#card.userDetails.watchlist}});
+    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, watchlist: !this.#card.userDetails.watchlist}});
   };
 
   #handleWatchedClick = () => {
-    this.#changeData({...this.#card, userDetails: {...this.#card.userDetails, alreadyWatched: !this.#card.userDetails.alreadyWatched}});
+    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, alreadyWatched: !this.#card.userDetails.alreadyWatched}});
   };
 
   #handleFavoriteClick = () => {
-    this.#changeData({...this.#card, userDetails: {...this.#card.userDetails, favorite: !this.#card.userDetails.favorite}});
+    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, favorite: !this.#card.userDetails.favorite}});
   };
 
   #renderPopup = () => {
@@ -82,6 +86,9 @@ export default class FilmPresenter {
     this.#openedPopup = new PopupView(this.#card);
     render(this.#openedPopup, this.#bodyContainer);
     this.#openedPopup.setPopupCloseButtonClickHandler(this.closePopup);
+    this.#openedPopup.setWatchlistClickHandler(this.#handleWatchlistClick);
+    this.#openedPopup.setWatchedClickHandler(this.#handleWatchedClick);
+    this.#openedPopup.setFavoriteClickHandler(this.#handleFavoriteClick);
 
     this.#bodyContainer.classList.add('hide-overflow');
     document.addEventListener('keydown', this.#escKeyDownHandler);
