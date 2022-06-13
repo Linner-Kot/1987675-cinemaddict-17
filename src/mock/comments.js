@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { getRandomInteger } from '../utils/common';
 
 const generateId = () => getRandomInteger(1, 10);
@@ -54,7 +55,7 @@ const generateEmotion = () => {
 
 
 export const generateComment = () => ({
-  'id': generateId(),
+  'id': nanoid(1),
   'author': generateAuthor(),
   'comment': generateMessage(),
   'date': generateDate(),
