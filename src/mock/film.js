@@ -202,11 +202,11 @@ for (let i = 0; i < randomCommentsCount; i++) {
 
 
 export const generateFilm = () => {
-  const id = nanoid(1);
+  const id = nanoid();
 
   return {
     id,
-    comments: comments.filter((comment) => comment.id === id),
+    comments: Array.from({length: getRandomInteger(1, 10)}, () => generateComment(id)),
     filmInfo: {
       title: generateTitle(),
       alternativeTitle: generateTitle(),

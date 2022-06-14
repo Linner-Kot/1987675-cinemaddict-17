@@ -52,8 +52,8 @@ const generateEmotion = () => {
 };
 
 
-export const generateComment = () => ({
-  'id': nanoid(1),
+export const generateComment = (id) => ({
+  'id': id,
   'author': generateAuthor(),
   'comment': generateMessage(),
   'date': generateDate(),

@@ -40,17 +40,7 @@ const sortFilmByDateDown = (filmA, filmB) => {
   return 0;
 };
 
-const sortFilmByRatingUp = (filmA, filmB) => {
-  if (filmA.filmInfo.totalRating < filmB.filmInfo.totalRating) {
-    return 1;
-  }
-
-  if (filmA.filmInfo.totalRating > filmB.filmInfo.totalRating) {
-    return -1;
-  }
-
-  return 0;
-};
+const sortFilmByRatingUp = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 
 const sortFilmByRatingDown = (filmA, filmB) => {
   if (filmB.filmInfo.totalRating < filmA.filmInfo.totalRating) {
