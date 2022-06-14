@@ -10,7 +10,6 @@ export default class FilmPresenter {
   #openedPopup = null;
   #setOpenedPopup = null;
   #handleFilmChange = null;
-  #popupComponent = null;
 
   constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, handleFilmChange) {
     this.#filmsContainerComponent = filmsContainerComponent;
