@@ -10,7 +10,6 @@ export default class FilmPresenter {
   #openedPopup = null;
   #setOpenedPopup = null;
   #handleFilmChange = null;
-  #popupComponent = null;
 
   constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, handleFilmChange) {
     this.#filmsContainerComponent = filmsContainerComponent;
@@ -50,12 +49,11 @@ export default class FilmPresenter {
 
   destroy = () => {
     remove(this.#cardComponent);
-    remove(this.#openedPopup);
+    this.closePopup();
   };
 
   closePopup = () => {
-    this.#openedPopup.element.remove();
-    this.#openedPopup.removeElement();
+    remove(this.#openedPopup);
 
     this.#bodyContainer.classList.remove('hide-overflow');
     document.removeEventListener('keydown', this.#escKeyDownHandler);

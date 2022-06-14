@@ -16,4 +16,43 @@ const humanizeFilmRuntime = (runtime) => {
 
 const humanizeCommentDate = (date) => dayjs(date).format('YYYY/MM/DD H:mm');
 
-export {humanizeCommentDate, humanizeFilmPopupReleaseDate, humanizeFilmCardReleaseDate, humanizeFilmRuntime};
+const sortFilmByDateUp = (filmA, filmB) => {
+  if (filmA.filmInfo.release.date < filmB.filmInfo.release.date) {
+    return -1;
+  }
+
+  if (filmA.filmInfo.release.date > filmB.filmInfo.release.date) {
+    return 1;
+  }
+
+  return 0;
+};
+
+const sortFilmByDateDown = (filmA, filmB) => {
+  if (filmA.filmInfo.release.date < filmB.filmInfo.release.date) {
+    return 1;
+  }
+
+  if (filmA.filmInfo.release.date > filmB.filmInfo.release.date) {
+    return -1;
+  }
+
+  return 0;
+};
+
+const sortFilmByRatingUp = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
+
+const sortFilmByRatingDown = (filmA, filmB) => {
+  if (filmB.filmInfo.totalRating < filmA.filmInfo.totalRating) {
+    return 1;
+  }
+
+  if (filmB.filmInfo.totalRating > filmA.filmInfo.totalRating) {
+    return -1;
+  }
+
+  return 0;
+};
+
+
+export {humanizeCommentDate, humanizeFilmPopupReleaseDate, humanizeFilmCardReleaseDate, humanizeFilmRuntime, sortFilmByDateUp, sortFilmByDateDown, sortFilmByRatingUp, sortFilmByRatingDown};
