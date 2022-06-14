@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { getRandomInteger } from '../utils/common';
 
 const generateAuthor = () => {
