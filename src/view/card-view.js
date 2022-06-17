@@ -41,7 +41,7 @@ export default class CardView extends AbstractView {
 
   setCardClickHandler = (callback) => {
     this._callback.cardClick = callback;
-    this.element.querySelector('img').addEventListener('click', this.#cardClickHandler);
+    this.element.addEventListener('click', this.#cardClickHandler);
   };
 
   setWatchlistClickHandler = (callback) => {
@@ -60,6 +60,10 @@ export default class CardView extends AbstractView {
   };
 
   #cardClickHandler = (evt) => {
+    if (evt.target.tagName === 'BUTTON') {
+      return;
+    }
+
     evt.preventDefault();
     this._callback.cardClick();
   };
