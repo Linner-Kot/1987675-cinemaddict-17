@@ -14,3 +14,5 @@ mainPresenter.init();
 
 const footerPresenter = new FooterPresenter(siteBody, cardsModel.cards.length);
 footerPresenter.init();
+
+//коммент для отправки задания "7.4. Меняй-удаляй"
