@@ -15,4 +15,4 @@ mainPresenter.init();
 const footerPresenter = new FooterPresenter(siteBody, cardsModel.cards.length);
 footerPresenter.init();
 
-//коммент для отправки задания "7.4. Меняй-удаляй"
+//коммент для отправки задания "6.6. Обновление века (часть 2)"
