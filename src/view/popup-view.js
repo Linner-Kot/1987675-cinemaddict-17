@@ -1,10 +1,22 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import { nanoid } from 'nanoid';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeFilmPopupReleaseDate, humanizeFilmRuntime, humanizeCommentDate } from '../utils/film';
 
 const createPopupTemplate = (film) => {
   const {poster, ageRating, title, alternativeTitle, totalRating, director, writers, actors, release, runtime, genre, description} = film.filmInfo;
   const {comments} = film;
   const {watchlist, alreadyWatched, favorite} = film.userDetails;
+  const {newCommentEmoji, newCommentText} = film;
+  const {newComment} = film;
+  let newCommentEmojiMarkup = '';
+
+  if (newComment) {
+    comments.push(newComment);
+  }
+
+  if (newCommentEmoji !== '') {
+    newCommentEmojiMarkup = `<img src="./images/emoji/${newCommentEmoji}.png" width="55" height="55" alt="emoji"></img>`;
+  }
 
   let commentsMarkup = '';
   comments.forEach((comment) => {
@@ -108,10 +120,12 @@ const createPopupTemplate = (film) => {
             </ul>
 
             <div class="film-details__new-comment">
-              <div class="film-details__add-emoji-label"></div>
+              <div class="film-details__add-emoji-label">
+                ${newCommentEmojiMarkup}
+              </div>
 
               <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment"></textarea>
+                <textarea class="film-details__comment-input" placeholder='Select reaction below and write comment here' name="comment">${newCommentText}</textarea>
               </label>
 
               <div class="film-details__emoji-list">
@@ -143,15 +157,29 @@ const createPopupTemplate = (film) => {
   );
 };
 
-export default class PopupView extends AbstractView {
+export default class PopupView extends AbstractStatefulView {
   constructor(film) {
     super();
-    this.film = film;
+    this._state = PopupView.parseFilmToState(film);
+
+    this.#setInnerHandlers();
   }
 
   get template() {
-    return createPopupTemplate(this.film);
+    return createPopupTemplate(this._state);
   }
+
+  static parseFilmToState = (film) => ({
+    ...film,
+    newCommentEmoji: '',
+    newCommentText: '',
+  });
+
+  static parseStateToFilm = (state) => {
+    const film = {...state};
+
+    return film;
+  };
 
   setPopupCloseButtonClickHandler = (callback) => {
     this._callback.popupCloseButtonClick = callback;
@@ -180,7 +208,9 @@ export default class PopupView extends AbstractView {
 
   #watchlistClickHandler = (evt) => {
     evt.preventDefault();
+    const scrollPosition = this.element.scrollTop;
     this._callback.watchlistClick();
+    this.element.scrollTo('', scrollPosition); //не работает
   };
 
   #watchedClickHandler = (evt) => {
@@ -191,5 +221,66 @@ export default class PopupView extends AbstractView {
   #favoriteClickHandler = (evt) => {
     evt.preventDefault();
     this._callback.favoriteClick();
+  };
+
+  #emojiClickHandler = (evt) => {
+    if (!evt.target.classList.contains('film-details__emoji-item')) {
+      return;
+    }
+
+    const scrollPosition = this.element.scrollTop;
+
+    evt.preventDefault();
+    this.updateElement({
+      newCommentEmoji: evt.target.value,
+    });
+
+    this.element.querySelectorAll('input').forEach((input) => {input.checked = false;});
+    evt.target.checked = true;
+    this.element.scrollTo('', scrollPosition);
+  };
+
+  #textInputHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      newCommentText: evt.target.value,
+    });
+  };
+
+  #textSubmitHandler = (evt) => {
+    const scrollPosition = this.element.scrollTop;
+
+    if (evt.key === 'Enter' && evt.ctrlKey) {
+      this._setState({
+        newComment: {
+          'id': nanoid(),
+          'author': 'kot',
+          'comment': this._state.newCommentText,
+          'date': Date.now(),
+          'emotion': this._state.newCommentEmoji,
+        }
+      });
+      this.updateElement({
+        newCommentText: '',
+        newCommentEmoji: '',
+      });
+      this._state.newComment = null;
+
+      this.element.scrollTo('', scrollPosition);
+    }
+  };
+
+  #setInnerHandlers = () => {
+    this.element.querySelector('.film-details__new-comment').addEventListener('click', this.#emojiClickHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#textInputHandler);
+    this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#textSubmitHandler);
+  };
+
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setPopupCloseButtonClickHandler(this._callback.popupCloseButtonClick);
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+    this.setWatchedClickHandler(this._callback.watchedClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
   };
 }
