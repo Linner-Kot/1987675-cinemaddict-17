@@ -250,7 +250,7 @@ export default class PopupView extends AbstractStatefulView {
   #textSubmitHandler = (evt) => {
     const scrollPosition = this.element.scrollTop;
 
-    if (evt.key === 'Enter' && evt.ctrlKey) {
+    if (evt.key === 'Enter' && evt.ctrlKey && this._state.newCommentEmoji && this._state.newCommentText) {
       this._setState({
         newComment: {
           'id': nanoid(),
@@ -260,6 +260,7 @@ export default class PopupView extends AbstractStatefulView {
           'emotion': this._state.newCommentEmoji,
         }
       });
+
       this.updateElement({
         newCommentText: '',
         newCommentEmoji: '',
