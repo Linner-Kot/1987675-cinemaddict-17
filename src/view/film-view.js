@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { humanizeFilmCardReleaseDate, humanizeFilmRuntime } from '../utils/film';
+import { humanizeFilmReleaseDate, humanizeFilmRuntime } from '../utils/film';
 
-const createCardTemplate = (film) => {
+const createFilmTemplate = (film) => {
   const {title, totalRating, release, runtime, genre, poster, description} = film.filmInfo;
   const {comments} = film;
   const {watchlist, alreadyWatched, favorite} = film.userDetails;
@@ -12,7 +12,7 @@ const createCardTemplate = (film) => {
         <h3 class="film-card__title">${title}</h3>
         <p class="film-card__rating">${totalRating}</p>
         <p class="film-card__info">
-          <span class="film-card__year">${humanizeFilmCardReleaseDate(release.date)}</span>
+          <span class="film-card__year">${humanizeFilmReleaseDate(release.date)}</span>
           <span class="film-card__duration">${humanizeFilmRuntime(runtime)}</span>
           <span class="film-card__genre">${genre}</span>
         </p>
@@ -29,19 +29,19 @@ const createCardTemplate = (film) => {
   );
 };
 
-export default class CardView extends AbstractView {
+export default class FilmView extends AbstractView {
   constructor(film) {
     super();
     this.film = film;
   }
 
   get template() {
-    return createCardTemplate(this.film);
+    return createFilmTemplate(this.film);
   }
 
-  setCardClickHandler = (callback) => {
-    this._callback.cardClick = callback;
-    this.element.addEventListener('click', this.#cardClickHandler);
+  setFilmClickHandler = (callback) => {
+    this._callback.filmClick = callback;
+    this.element.addEventListener('click', this.#filmClickHandler);
   };
 
   setWatchlistClickHandler = (callback) => {
@@ -59,13 +59,13 @@ export default class CardView extends AbstractView {
     this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
   };
 
-  #cardClickHandler = (evt) => {
+  #filmClickHandler = (evt) => {
     if (evt.target.tagName === 'BUTTON') {
       return;
     }
 
     evt.preventDefault();
-    this._callback.cardClick();
+    this._callback.filmClick();
   };
 
   #watchlistClickHandler = (evt) => {

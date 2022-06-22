@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-const humanizeFilmCardReleaseDate = (date) => dayjs(date).format('YYYY');
+const humanizeFilmReleaseDate = (date) => dayjs(date).format('YYYY');
 
 const humanizeFilmPopupReleaseDate = (date) => dayjs(date).format('D MMMM YYYY');
 
@@ -20,5 +20,4 @@ const sortFilmByDateUp = (filmA, filmB) => filmB.filmInfo.release.date - filmA.f
 
 const sortFilmByRatingUp = (filmA, filmB) => filmB.filmInfo.totalRating - filmA.filmInfo.totalRating;
 
-
-export {humanizeCommentDate, humanizeFilmPopupReleaseDate, humanizeFilmCardReleaseDate, humanizeFilmRuntime, sortFilmByDateUp, sortFilmByRatingUp};
+export {humanizeCommentDate, humanizeFilmPopupReleaseDate, humanizeFilmReleaseDate, humanizeFilmRuntime, sortFilmByDateUp, sortFilmByRatingUp};

@@ -1,23 +1,21 @@
 import AbstractView from '../framework/view/abstract-view.js';
 
-const createFooterTemplate = (cardsCount) => (
-  `<footer class="footer">
-    <section class="footer__logo logo logo--smaller">
+const createFooterTemplate = (filmsCount) => (
+  `<section class="footer__logo logo logo--smaller">
       Cinemaddict
     </section>
     <section class="footer__statistics">
-      <p>${cardsCount} movies inside</p>
-    </section>
-  </footer>`
+      <p>${filmsCount} movies inside</p>
+    </section>`
 );
 
 export default class FooterView extends AbstractView {
-  constructor(cardsCount) {
+  constructor(filmsCount) {
     super();
-    this.cardsCount = cardsCount;
+    this.filmsCount = filmsCount;
   }
 
   get template() {
-    return createFooterTemplate(this.cardsCount);
+    return createFooterTemplate(this.filmsCount);
   }
 }
