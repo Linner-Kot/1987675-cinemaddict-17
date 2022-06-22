@@ -1,54 +1,55 @@
 import { render, remove, replace } from '../framework/render.js';
-import CardView from '../view/card-view.js';
+import { UserAction, UpdateType } from '../const.js';
+import FilmView from '../view/film-view.js';
 import PopupView from '../view/popup-view.js';
 
 export default class FilmPresenter {
   #filmsContainerComponent = null;
   #bodyContainer = null;
-  #card = null;
-  #cardComponent = null;
+  #film = null;
+  #filmComponent = null;
   #openedPopup = null;
   #setOpenedPopup = null;
-  #handleFilmChange = null;
+  #changeData = null;
 
-  constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, handleFilmChange) {
+  constructor(filmsContainerComponent, bodyContainer, setOpenedPopup, changeData) {
     this.#filmsContainerComponent = filmsContainerComponent;
     this.#bodyContainer = bodyContainer;
     this.#setOpenedPopup = setOpenedPopup;
-    this.#handleFilmChange = handleFilmChange;
+    this.#changeData = changeData;
   }
 
-  init = (card) => {
-    this.#card = card;
+  init = (film) => {
+    this.#film = film;
 
-    const prevCardComponent = this.#cardComponent;
+    const prevFilmComponent = this.#filmComponent;
     const prevPopupComponent = this.#openedPopup;
 
-    this.#cardComponent = new CardView(this.#card);
+    this.#filmComponent = new FilmView(this.#film);
     if (prevPopupComponent !== null && this.#bodyContainer.contains(prevPopupComponent.element)) {
-      this.#renderPopup(this.#card);
+      this.#renderPopup(this.#film);
     }
 
-    this.#cardComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
-    this.#cardComponent.setWatchedClickHandler(this.#handleWatchedClick);
-    this.#cardComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    this.#cardComponent.setCardClickHandler(() => this.#renderPopup(this.#card));
+    this.#filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
+    this.#filmComponent.setWatchedClickHandler(this.#handleWatchedClick);
+    this.#filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
+    this.#filmComponent.setFilmClickHandler(() => this.#renderPopup(this.#film));
 
-    if (prevCardComponent === null) {
-      render(this.#cardComponent, this.#filmsContainerComponent);
+    if (prevFilmComponent === null) {
+      render(this.#filmComponent, this.#filmsContainerComponent);
       return;
     }
 
-    if (this.#filmsContainerComponent.contains(prevCardComponent.element)) {
-      replace(this.#cardComponent, prevCardComponent);
+    if (this.#filmsContainerComponent.contains(prevFilmComponent.element)) {
+      replace(this.#filmComponent, prevFilmComponent);
     }
 
-    remove(prevCardComponent);
+    remove(prevFilmComponent);
     remove(prevPopupComponent);
   };
 
   destroy = () => {
-    remove(this.#cardComponent);
+    remove(this.#filmComponent);
     this.closePopup();
   };
 
@@ -67,21 +68,33 @@ export default class FilmPresenter {
   };
 
   #handleWatchlistClick = () => {
-    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, watchlist: !this.#card.userDetails.watchlist}});
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {...this.#film, userDetails: {...this.#film.userDetails, watchlist: !this.#film.userDetails.watchlist}}
+    );
   };
 
   #handleWatchedClick = () => {
-    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, alreadyWatched: !this.#card.userDetails.alreadyWatched}});
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {...this.#film, userDetails: {...this.#film.userDetails, alreadyWatched: !this.#film.userDetails.alreadyWatched}}
+    );
   };
 
   #handleFavoriteClick = () => {
-    this.#handleFilmChange({...this.#card, userDetails: {...this.#card.userDetails, favorite: !this.#card.userDetails.favorite}});
+    this.#changeData(
+      UserAction.UPDATE_FILM,
+      UpdateType.MINOR,
+      {...this.#film, userDetails: {...this.#film.userDetails, favorite: !this.#film.userDetails.favorite}}
+    );
   };
 
   #renderPopup = () => {
     this.#setOpenedPopup(this);
 
-    this.#openedPopup = new PopupView(this.#card);
+    this.#openedPopup = new PopupView(this.#film);
     render(this.#openedPopup, this.#bodyContainer);
     this.#openedPopup.setPopupCloseButtonClickHandler(this.closePopup);
     this.#openedPopup.setWatchlistClickHandler(this.#handleWatchlistClick);

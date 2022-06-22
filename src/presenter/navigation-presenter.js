@@ -3,17 +3,17 @@ import NavigationView from '../view/navigation-view.js';
 
 export default class NavigationPresenter {
   #mainComponent = null;
-  #mainCards = null;
+  #mainFilms = null;
   #navigationComponent = null;
 
   constructor(mainComponent) {
     this.#mainComponent = mainComponent;
   }
 
-  init = (mainCards) => {
-    this.#mainCards = mainCards;
+  init = (mainFilms) => {
+    this.#mainFilms = mainFilms;
 
-    this.#navigationComponent = new NavigationView(this.#mainCards);
+    this.#navigationComponent = new NavigationView(this.#mainFilms);
 
     render(this.#navigationComponent, this.#mainComponent);
   };

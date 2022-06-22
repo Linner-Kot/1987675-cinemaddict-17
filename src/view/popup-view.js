@@ -1,13 +1,14 @@
 import { nanoid } from 'nanoid';
-import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { humanizeFilmPopupReleaseDate, humanizeFilmRuntime, humanizeCommentDate } from '../utils/film';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
+import he from 'he';
+import { remove } from '../framework/render';
 
 const createPopupTemplate = (film) => {
   const {poster, ageRating, title, alternativeTitle, totalRating, director, writers, actors, release, runtime, genre, description} = film.filmInfo;
-  const {comments} = film;
   const {watchlist, alreadyWatched, favorite} = film.userDetails;
-  const {newCommentEmoji, newCommentText} = film;
-  const {newComment} = film;
+  const {comments, newCommentEmoji, newCommentText, newComment} = film;
+
   let newCommentEmojiMarkup = '';
 
   if (newComment) {
@@ -19,6 +20,7 @@ const createPopupTemplate = (film) => {
   }
 
   let commentsMarkup = '';
+
   comments.forEach((comment) => {
     const commentTemplate = `
     <li class="film-details__comment">
@@ -26,11 +28,11 @@ const createPopupTemplate = (film) => {
         <img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-smile">
       </span>
       <div>
-        <p class="film-details__comment-text">${comment.comment}</p>
+        <p class="film-details__comment-text">${he.encode(comment.comment)}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${comment.author}</span>
           <span class="film-details__comment-day">${humanizeCommentDate(comment.date)}</span>
-          <button class="film-details__comment-delete">Delete</button>
+          <button class="film-details__comment-delete" data-comment-id="${comment.id}">Delete</button>
         </p>
       </div>
     </li>`;
@@ -125,7 +127,7 @@ const createPopupTemplate = (film) => {
               </div>
 
               <label class="film-details__comment-label">
-                <textarea class="film-details__comment-input" placeholder='Select reaction below and write comment here' name="comment">${newCommentText}</textarea>
+                <textarea class="film-details__comment-input" placeholder='Select reaction below and write comment here' name="comment">${he.encode(newCommentText)}</textarea>
               </label>
 
               <div class="film-details__emoji-list">
@@ -210,7 +212,7 @@ export default class PopupView extends AbstractStatefulView {
     evt.preventDefault();
     const scrollPosition = this.element.scrollTop;
     this._callback.watchlistClick();
-    this.element.scrollTo('', scrollPosition); //не работает
+    this.element.scrollTo('', scrollPosition); //comment не работает
   };
 
   #watchedClickHandler = (evt) => {
@@ -250,7 +252,7 @@ export default class PopupView extends AbstractStatefulView {
   #textSubmitHandler = (evt) => {
     const scrollPosition = this.element.scrollTop;
 
-    if (evt.key === 'Enter' && evt.ctrlKey) {
+    if (evt.key === 'Enter' && evt.ctrlKey && this._state.newCommentEmoji && this._state.newCommentText) {
       this._setState({
         newComment: {
           'id': nanoid(),
@@ -260,6 +262,7 @@ export default class PopupView extends AbstractStatefulView {
           'emotion': this._state.newCommentEmoji,
         }
       });
+
       this.updateElement({
         newCommentText: '',
         newCommentEmoji: '',
@@ -270,10 +273,16 @@ export default class PopupView extends AbstractStatefulView {
     }
   };
 
+  #deleteCommentClickHandler = (evt) => {
+    evt.preventDefault();
+    console.log(evt.target.dataset.commentId);
+  };
+
   #setInnerHandlers = () => {
     this.element.querySelector('.film-details__new-comment').addEventListener('click', this.#emojiClickHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('input', this.#textInputHandler);
     this.element.querySelector('.film-details__comment-input').addEventListener('keydown', this.#textSubmitHandler);
+    this.element.querySelectorAll('.film-details__comment-delete').forEach((elem) => elem.addEventListener('click', this.#deleteCommentClickHandler));
   };
 
   _restoreHandlers = () => {

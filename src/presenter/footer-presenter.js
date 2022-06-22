@@ -3,14 +3,14 @@ import FooterView from '../view/footer-view.js';
 
 export default class FooterPresenter {
   #footerContainer;
-  #cardsCount;
+  #filmsCount;
 
-  constructor (footerContainer, cardsCount) {
+  constructor (footerContainer, filmsCount) {
     this.#footerContainer = footerContainer;
-    this.#cardsCount = cardsCount;
+    this.#filmsCount = filmsCount;
   }
 
   init = () => {
-    render(new FooterView(this.#cardsCount), this.#footerContainer);
+    render(new FooterView(this.#filmsCount), this.#footerContainer);
   };
 }
